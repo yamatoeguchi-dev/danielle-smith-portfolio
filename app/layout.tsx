@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
-
 import { IBM_Plex_Sans } from 'next/font/google';
 import "./globals.css";
+
 import { Header } from "@/components/header/header";
+import ContentContainer from "@/components/contentContainer";
 
 const ibmPlexSans = IBM_Plex_Sans({
   subsets: ['latin'],
@@ -28,7 +29,9 @@ export default function RootLayout({
         </head>
         <body className={ibmPlexSans.className}>
           <Header />
-          {children}
+          <ContentContainer>
+            {children}
+          </ContentContainer>
         </body>
       </html>
   );
