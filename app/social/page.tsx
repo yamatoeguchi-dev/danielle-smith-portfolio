@@ -34,7 +34,7 @@ export default function SocialPage({}: Props) {
         </div>
 
         {/* Paragraph — third on mobile, left/bottom on desktop */}
-        <div className="order-3 lg:order-none lg:col-start-1 lg:row-start-2">
+        <div className="order-3 lg:order-none lg:col-start-1 lg:row-start-2 lg:relative lg:-top-8">
           <p className="mt-3 lg:mt-2">
             lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut
             labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco
@@ -45,9 +45,9 @@ export default function SocialPage({}: Props) {
         </div>
       </div>
       <Separator className='my-10'/>
-      <ArticleCarousel
-        articles={SOCIAL_MEDIA_ARTICLES}
-      />
+      <div className='w-full'>
+        <ArticleCarousel articles={SOCIAL_MEDIA_ARTICLES}/>
+      </div>
     </div>
   )
 }

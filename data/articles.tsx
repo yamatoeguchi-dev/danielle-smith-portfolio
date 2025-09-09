@@ -10,7 +10,7 @@ export const SOCIAL_MEDIA_ARTICLES: ArticleLink[] = [
         tags: ["sample", "article"],
         company: "Example Co.",
         description: "This is a sample article for demonstration purposes.",
-        imageUrl: "https://rdaniellesmith.wordpress.com/wp-content/uploads/2024/12/point-loma-shooting-erik-ho-1.png.webp"
+        imageUrl: "/gifs/social/ecoli.GIF"
     },
     {
         title: "Sample Article 2",
@@ -19,7 +19,7 @@ export const SOCIAL_MEDIA_ARTICLES: ArticleLink[] = [
         tags: ["sample", "article"],
         company: "Example Co.",
         description: "This is a sample article for demonstration purposes.",
-        imageUrl: "https://rdaniellesmith.wordpress.com/wp-content/uploads/2024/12/carlsbad-emotorcycle.png.webp"
+        imageUrl: "/gifs/social/parking.GIF"
     },
     {
         title: "Sample Article 3",
@@ -28,7 +28,16 @@ export const SOCIAL_MEDIA_ARTICLES: ArticleLink[] = [
         tags: ["sample", "article"],
         company: "Example Co.",
         description: "This is a sample article for demonstration purposes.",
-        imageUrl: "https://rdaniellesmith.wordpress.com/wp-content/uploads/2024/12/drowning.png.webp"
+        imageUrl: "/gifs/social/robot.GIF"
+    },
+    {
+        title: "Sample Article 3",
+        url: "https://example.com/article1",
+        publishedAt: "2023-01-01",
+        tags: ["sample", "article"],
+        company: "Example Co.",
+        description: "This is a sample article for demonstration purposes.",
+        imageUrl: "/gifs/social/spider.GIF"
     },
 ];
 

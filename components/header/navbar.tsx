@@ -14,7 +14,7 @@ export const Navbar: React.FC = () => {
   const [open, setOpen] = useState(false);
 
   return (
-    <nav className="w-full m-0 md:mt-3 sm:px-20 lg:px-60 xl: 2xl:px-80">
+    <nav className="w-full m-0 md:mt-3 px-4 md:px-8 max-w-7xl">
 
       {/* Mobile Menu */}
       <div className="md:hidden absolute right-4 top-3">
@@ -33,7 +33,7 @@ export const Navbar: React.FC = () => {
                 <li>
                   <Link
                     href="/social"
-                    className="text-sm text-gray-700 hover:text-blue-500"
+                    className="text-lg text-gray-700 hover:text-blue-500"
                     onClick={() => setOpen(false)}
                   >
                     Social Media
@@ -42,7 +42,7 @@ export const Navbar: React.FC = () => {
                 <li>
                   <Link
                     href="/digital"
-                    className="text-sm text-gray-700 hover:text-blue-500"
+                    className="text-lg text-gray-700 hover:text-blue-500"
                     onClick={() => setOpen(false)}
                   >
                     Digital Writing
@@ -51,7 +51,7 @@ export const Navbar: React.FC = () => {
                 <li>
                   <Link
                     href="/project-leadership"
-                    className="text-sm text-gray-700 hover:text-blue-500"
+                    className="text-lg text-gray-700 hover:text-blue-500"
                     onClick={() => setOpen(false)}
                   >
                     Project Leadership
@@ -68,7 +68,7 @@ export const Navbar: React.FC = () => {
         <li>
           <Link
             href="/social"
-            className="text-sm text-gray-700 hover:text-blue-500"
+            className="text-lg text-gray-700 hover:text-blue-500"
             onClick={() => setOpen(false)}
           >
             Social Media
@@ -77,7 +77,7 @@ export const Navbar: React.FC = () => {
         <li>
           <Link
             href="/digital"
-            className="text-sm text-gray-700 hover:text-blue-500"
+            className="text-lg text-gray-700 hover:text-blue-500"
             onClick={() => setOpen(false)}
           >
             Digital Writing
@@ -86,7 +86,7 @@ export const Navbar: React.FC = () => {
         <li>
           <Link
             href="/project-leadership"
-            className="text-sm text-gray-700 hover:text-blue-500"
+            className="text-lg text-gray-700 hover:text-blue-500"
             onClick={() => setOpen(false)}
           >
             Project Leadership
