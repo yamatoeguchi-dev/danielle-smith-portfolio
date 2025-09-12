@@ -22,7 +22,7 @@ export const Navbar: React.FC = () => {
           <SheetTitle className="hidden"></SheetTitle>
           <SheetTrigger asChild>
             <Button variant="ghost" size="icon">
-              <Menu className="w-6 h-6" size="lg" />
+              <Menu className="w-20 h-20" />
             </Button>
           </SheetTrigger>
           <SheetContent side="right" className="w-64 px-4">

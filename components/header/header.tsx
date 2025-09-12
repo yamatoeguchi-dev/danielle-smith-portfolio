@@ -6,7 +6,7 @@ import { Separator } from '../ui/separator';
 
 export const Header: React.FC = () => {
   return (
-    <div className="w-full flex flex-col items-center justify-center gap-4 p-4">
+    <div className="w-full flex flex-col items-center justify-center gap-4 p-4 my-8">
       <HeaderTitle />
       <Navbar />
       <Separator />

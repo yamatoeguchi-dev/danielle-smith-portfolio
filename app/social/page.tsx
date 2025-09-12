@@ -15,13 +15,9 @@ export default function SocialPage({}: Props) {
     <div className="mb-8">
       {/* Desktop: 2 columns; small row gap so header+para stay close */}
       <div className="grid gap-x-8 gap-y-2 lg:grid-cols-2">
-        {/* Header — top on mobile, left/top on desktop */}
-        <div className="order-1 lg:order-none lg:col-start-1 lg:row-start-1">
-          <h1 className="text-3xl font-bold">Social Media</h1>
-        </div>
 
         {/* Image — second on mobile, entire right column on desktop */}
-        <div className="order-2 lg:order-none lg:col-start-2 lg:row-start-1 lg:row-span-2">
+        <div className="order-1 lg:order-none lg:col-start-2 lg:row-start-1 lg:row-span-2">
           <div className="relative w-full h-64 lg:h-full min-h-[300px]">
             <Image
               src="https://www.pngfind.com/pngs/m/5-59243_cell-phone-mockup-iphone-placeholder-hd-png-download.png"   // put in /public/images
@@ -33,8 +29,13 @@ export default function SocialPage({}: Props) {
           </div>
         </div>
 
+        {/* Header — top on mobile, left/top on desktop */}
+        <div className="order-2 lg:order-none lg:col-start-1 lg:row-start-1">
+          <h1 className="text-3xl font-bold">Social Media</h1>
+        </div>
+
         {/* Paragraph — third on mobile, left/bottom on desktop */}
-        <div className="order-3 lg:order-none lg:col-start-1 lg:row-start-2 lg:relative lg:-top-8">
+        <div className="order-3 lg:order-none lg:col-start-1 lg:row-start-2 lg:relative md:-top-12">
           <p className="mt-3 lg:mt-2">
             lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut
             labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco
@@ -45,9 +46,16 @@ export default function SocialPage({}: Props) {
         </div>
       </div>
       <Separator className='my-10'/>
-      <div className='w-full'>
-        <ArticleCarousel articles={SOCIAL_MEDIA_ARTICLES}/>
+      <div className="my-4">
+        <h1 className="text-2xl font-bold">On Camera! 🎥</h1>
       </div>
+      <ArticleCarousel articles={SOCIAL_MEDIA_ARTICLES}/>
+      <Separator className='my-10'/>
+      <div className="my-4">
+        <h1 className="text-2xl font-bold">Story telling 📖</h1>
+      </div>
+      <ArticleCarousel articles={SOCIAL_MEDIA_ARTICLES}/>
+      <Separator className='my-10'/>
     </div>
   )
 }
