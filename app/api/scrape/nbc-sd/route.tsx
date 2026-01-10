@@ -15,7 +15,19 @@ import { NbcSdScraper } from '@/services/scraper/nbc-sd-scraper'
 export async function GET() {
   // For now, only scrape NBC San Diego website. This will be expanded once more scrapers are added.
   const nbc_sd_scraper = new NbcSdScraper()
-  const nbc_articles: NBCArticleContent[] = await nbc_sd_scraper.scrape()
+  let nbc_articles: NBCArticleContent[] = []
+
+  try {
+    nbc_articles = await nbc_sd_scraper.scrape()
+  } catch (error) {
+    console.error("Error during NBC San Diego scraping:", error)
+    return NextResponse.json({ message: "Error during scraping.", error }, { status: 500 })
+  }
+
+  if (nbc_articles.length === 0) {
+    console.info("No articles found during NBC San Diego scraping.")
+    return NextResponse.json({ message: "Scraping complete. No new articles found." })
+  }
 
   // Get the latest publishDate in the database
   const latest_saved_publish_date = await prisma.archive.findFirst({
