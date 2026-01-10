@@ -33,6 +33,11 @@ export async function GET() {
     return new Date(article.publishDate) > new Date(latest_saved_publish_date.publishDate)
   })
 
+  // If no new articles, return early
+  if (new_articles.length === 0) {
+    return NextResponse.json({ message: "Scraping complete. No new articles found." })
+  }
+
   console.log(`Found ${new_articles.length} new articles from NBC San Diego. Saving to database...`)
   await prisma.archive.createMany({
     data: new_articles.map(a => ({
