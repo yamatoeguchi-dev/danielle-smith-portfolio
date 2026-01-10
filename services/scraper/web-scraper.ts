@@ -30,7 +30,7 @@ export abstract class WebScraper {
             throw new Error("URL is required for scraping.");
         }
 
-        console.info(`Scraping URL: ${url}`);
+        console.debug(`Scraping URL: ${url}`);
 
         try {
             const response = await fetch(url);
@@ -41,7 +41,7 @@ export abstract class WebScraper {
 
             const htmlText: string = await response.text();
 
-            console.log(`Successfully scraped URL: ${url}`);
+            console.debug(`Successfully scraped URL: ${url}`);
             return htmlText;
         } catch (error) {
             console.error(error);
