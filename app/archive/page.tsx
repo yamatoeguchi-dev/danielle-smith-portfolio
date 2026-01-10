@@ -5,7 +5,12 @@ import prisma from '@/lib/prisma'
 type Props = {}
 
 export default async function ArchivePage({}: Props) {
-    const archives = await prisma.archive.findMany()
+    const archives = await prisma.archive.findMany({
+        orderBy: {
+            publishDate: 'desc'
+        }
+    })
+
     return (
         <>
             <div>Archive Page</div>

@@ -33,15 +33,29 @@ export async function GET() {
     return new Date(article.publishDate) > new Date(latest_saved_publish_date.publishDate)
   })
 
+  // Filter scraped data that has already existing headlines in the database
+  const existing_headlines = await prisma.archive.findMany({
+    where: {
+      organization: ArchiveOrganizationType.NBC_SAN_DIEGO,
+      headline: {
+        in: new_articles.map(a => a.headline),
+      },
+    },
+    select: {
+      headline: true,
+    },
+  }).then(results => results.map(r => r.headline))
+  const filtered_new_articles = new_articles.filter(article => !existing_headlines.includes(article.headline))
+
   // If no new articles, return early
-  if (new_articles.length === 0) {
+  if (filtered_new_articles.length === 0) {
     console.info("No new articles found.")
     return NextResponse.json({ message: "Scraping complete. No new articles found." })
   }
 
-  console.log(`Found ${new_articles.length} new articles from NBC San Diego. Saving to database...`)
+  console.log(`Found ${filtered_new_articles.length} new articles from NBC San Diego. Saving to database...`)
   await prisma.archive.createMany({
-    data: new_articles.map(a => ({
+    data: filtered_new_articles.map(a => ({
       organization: a.organization,
       contentType: a.contentType,
       publishDate: a.publishDate,
