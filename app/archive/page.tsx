@@ -1,24 +1,32 @@
-import React from 'react'
-
 import prisma from '@/lib/prisma'
+import ArchiveList from "./ArchiveList"
 
-type Props = {}
+const PAGE_SIZE = 10
 
-export default async function ArchivePage({}: Props) {
-    const archives = await prisma.archive.findMany({
-        orderBy: {
-            publishDate: 'desc'
-        }
-    })
+export default async function ArchivePage() {
+	// Fetch the initial set of archive items from the database
+	const initial = await prisma.archive.findMany({
+		orderBy: [{ publishDate: "desc" }, { id: "desc" }],
+		take: PAGE_SIZE,
+		select: {
+		id: true,
+		organization: true,
+		headline: true,
+		publishDate: true,
+		url: true,
+		},
+	})
 
-    return (
-        <>
-            <div>Archive Page</div>
-            {
-                archives.map((archive) => (
-                    <div key={archive.id}>{archive.headline}</div>
-                ))
-            }
-        </>
-    )
+	// Determine the initial cursor for pagination
+  	const initialCursor = initial.length ? initial[initial.length - 1].id : null
+
+	return (
+		<div className="mx-auto w-full max-w-3xl px-4 pb-20">
+			<div className="mb-6">
+				<h1 className="text-2xl font-semibold tracking-tight">Archive</h1>
+			</div>
+
+			<ArchiveList initialItems={initial} initialCursor={initialCursor} pageSize={PAGE_SIZE} />
+		</div>
+	)
 }

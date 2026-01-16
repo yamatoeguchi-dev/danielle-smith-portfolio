@@ -13,5 +13,5 @@ export enum ArchiveContentType {
  * @property NBC_SAN_DIEGO - Represents NBC San Diego organization
  */
 export enum ArchiveOrganizationType {
-  NBC_SAN_DIEGO = 'NBC_SAN_DIEGO',
+  NBC_SAN_DIEGO = 'NBC SAN DIEGO',
 }
