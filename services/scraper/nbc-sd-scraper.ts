@@ -1,7 +1,7 @@
 import * as cheerio from "cheerio";
 
 import { WebScraper } from "./web-scraper";
-import { ArchiveContentType, ArchiveOrganizationType } from "@/lib/enums/Archive.enum";
+import { ArchiveContentType, ArchiveOrganizationType } from "@/lib/enums/archive.enum";
 
 
 /**

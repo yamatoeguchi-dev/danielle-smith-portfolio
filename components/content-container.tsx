@@ -6,7 +6,7 @@ type Props = {
 
 export default function ContentContainer({children}: Props) {
   return (
-    <div className="px-4 md:px-8 max-w-7xl mx-auto">
+    <div className="px-4 sm:px-6 lg:px-6 xl:px-36 max-w-7xl mx-auto">
       {children}
     </div>
   )

@@ -5,8 +5,14 @@ const nextConfig: NextConfig = {
 
 module.exports = {
 	images: {
-			domains: ["www.pngfind.com", "rdaniellesmith.wordpress.com"], // add your image's real domain
-	},
+		domains: ["www.pngfind.com", "rdaniellesmith.wordpress.com"],
+		remotePatterns: [
+			{
+				protocol: "https",
+				hostname: "media.nbcsandiego.com",
+			},
+		]
+	}
 }
 
 

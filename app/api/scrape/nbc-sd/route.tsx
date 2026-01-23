@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 
 import prisma from '@/lib/prisma'
-import { ArchiveOrganizationType } from '@/lib/enums/Archive.enum'
+import { ArchiveOrganizationType } from '@/lib/enums/archive.enum'
 import { AvailableNotifiers } from '@/lib/enums/available-notifiers.enum'
 import { NBCArticleContent } from '@/services/scraper/nbc-sd-scraper'
 import { NbcSdScraper } from '@/services/scraper/nbc-sd-scraper'

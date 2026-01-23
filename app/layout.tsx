@@ -3,6 +3,7 @@ import { IBM_Plex_Sans } from 'next/font/google';
 import "./globals.css";
 
 import { Header } from "@/components/header/header";
+import PortfolioFooter from "@/components/PortfolioFooter";
 import ContentContainer from "@/components/content-container";
 
 const ibmPlexSans = IBM_Plex_Sans({
@@ -32,6 +33,7 @@ export default function RootLayout({
           <ContentContainer>
             {children}
           </ContentContainer>
+          <PortfolioFooter name="Danielle Smith" year={2026}/>
         </body>
       </html>
   );
