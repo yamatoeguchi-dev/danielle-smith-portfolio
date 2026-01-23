@@ -19,7 +19,8 @@ model Archive {
   contentType   String   @db.VarChar(255)
   publishDate   DateTime
   url           String   @db.VarChar(255)
-  headline      String   @db.VarChar(255)
+  imageUrl      String?  @db.VarChar(255)
+  headline      String   @db.VarChar(255) @unique
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt @default(now())
 }
