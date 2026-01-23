@@ -6,6 +6,7 @@ import { Loader2, ExternalLink } from "lucide-react"
 import { ArchiveOrganizationType } from "@/lib/enums/Archive.enum"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
+import { formatAPDate } from "@/utils/misc"
 
 import { loadMoreArchives } from "./actions"
 
@@ -67,11 +68,7 @@ export default function ArchiveList({
 
                     <div className="flex shrink-0 items-center gap-3">
                     <div className="text-xs text-muted-foreground">
-                        {new Date(a.publishDate).toLocaleDateString("en-US", {
-                        year: "numeric",
-                        month: "short",
-                        day: "2-digit",
-                        })}
+                        {formatAPDate(new Date(a.publishDate))}
                     </div>
                     <ExternalLink className="h-4 w-4 text-muted-foreground" />
                     </div>
