@@ -14,7 +14,7 @@ export default function MediumArticle({
   article
 }: Props) {
   return (
-    <Link href={article.headline} className="group block" target="blank">
+    <Link href={article.url} className="group block" target="blank">
       <article className="rounded-none">
         {article.imageUrl && (
           <div className="relative mb-3 aspect-[4/3] overflow-hidden">
