@@ -1,98 +1,125 @@
-import { NextResponse } from 'next/server'
+import { NextResponse } from "next/server";
 
-import prisma from '@/lib/prisma'
-import { ArchiveOrganizationType } from '@/lib/enums/archive.enum'
-import { AvailableNotifiers } from '@/lib/enums/available-notifiers.enum'
-import { NBCArticleContent } from '@/services/scraper/nbc-sd-scraper'
-import { NbcSdScraper } from '@/services/scraper/nbc-sd-scraper'
-import { notifierConfig } from '@/lib/config/notifier.config'
-import { GmailNotifier } from '@/services/notifier/gmail-notifier'
+import prisma from "@/lib/prisma";
+import { ArchiveOrganizationType } from "@/lib/enums/archive.enum";
+import { NBCArticleContent, NbcSdScraper } from "@/services/scraper/nbc-sd-scraper";
+import { notifierConfig } from "@/lib/config/notifier.config";
+import { GmailNotifier } from "@/services/notifier/gmail-notifier";
 
 /**
- * Scrapes data from a specified source and stores it in the database.
- *
- * @param request - NextRequest object containing request details
- * @returns NextResponse indicating the result of the scraping operation
+ * Scrapes data from NBC San Diego and stores it in the database.
  */
 export async function GET() {
-  // For now, only scrape NBC San Diego website. This will be expanded once more scrapers are added.
-  const nbc_sd_scraper = new NbcSdScraper()
-  let nbc_articles: NBCArticleContent[] = []
+  const nbc_sd_scraper = new NbcSdScraper();
+  let nbc_articles: NBCArticleContent[] = [];
 
   try {
-    nbc_articles = await nbc_sd_scraper.scrape()
+    nbc_articles = await nbc_sd_scraper.scrape();
   } catch (error) {
-    console.error("Error during NBC San Diego scraping:", error)
-    return NextResponse.json({ message: "Error during scraping.", error }, { status: 500 })
+    console.error("Error during NBC San Diego scraping:", error);
+    return NextResponse.json({ message: "Error during scraping.", error }, { status: 500 });
   }
 
   if (nbc_articles.length === 0) {
-    console.info("No articles found during NBC San Diego scraping.")
-    return NextResponse.json({ message: "Scraping complete. No new articles found." })
+    console.info("No articles found during NBC San Diego scraping.");
+    return NextResponse.json({ message: "No articles found." });
   }
 
-  // Get the latest publishDate in the database
-  const latest_saved_publish_date = await prisma.archive.findFirst({
-    where: {
-      organization: ArchiveOrganizationType.NBC_SAN_DIEGO,
-    },
-    orderBy: {
-      publishDate: 'desc',
-    },
-  })
-
-  // Filter scraped data to only include new articles
-  const new_articles: NBCArticleContent[] = nbc_articles.filter((article: any) => {
-    if (!latest_saved_publish_date) return true
-    return new Date(article.publishDate) > new Date(latest_saved_publish_date.publishDate)
-  })
-
-  // Filter scraped data that has already existing headlines in the database
-  const existing_headlines = await prisma.archive.findMany({
-    where: {
-      organization: ArchiveOrganizationType.NBC_SAN_DIEGO,
-      headline: {
-        in: new_articles.map(a => a.headline),
-      },
-    },
-    select: {
-      headline: true,
-    },
-  }).then(results => results.map(r => r.headline))
-  const filtered_new_articles = new_articles.filter(article => !existing_headlines.includes(article.headline))
-
-  // Set up notifier manager
   const gmailNotifier = new GmailNotifier(notifierConfig.GMAIL);
 
-  // If no new articles, return early
-  if (filtered_new_articles.length === 0) {
-    console.info("No new articles found.")
-
-    const subject = "🔔DAN-E-BLAST ALERT: No new articles."
-    const body = `<p>No new articles were found during the latest NBC San Diego scrape.</p>`
-    await gmailNotifier.sendNotification(
-      notifierConfig.recipients,
-      subject,
-      body
-    );
-
-    return NextResponse.json({ message: "Scraping complete. No new articles found." })
+  function normalizeHeadline(s: string): string {
+    return (s ?? "")
+      .replace(/\u00A0/g, " ")
+      .replace(/\s+/g, " ")
+      .replace(/[“”]/g, '"')
+      .replace(/[‘’]/g, "'")
+      .replace(/[–—]/g, "-")
+      .trim()
+      .toLowerCase();
   }
 
-  console.log(`Found ${filtered_new_articles.length} new articles from NBC San Diego. Saving to database...`)
+  // -----------------------------
+  // 1) Dedup within the scrape itself
+  // -----------------------------
+  const seenInScrape = new Set<string>();
+  const scrapeDeduped: NBCArticleContent[] = [];
+
+  for (const a of nbc_articles) {
+    const key = normalizeHeadline(a.headline ?? "");
+    if (!key) continue;
+    if (seenInScrape.has(key)) continue;
+    seenInScrape.add(key);
+    scrapeDeduped.push(a);
+  }
+
+  // -----------------------------
+  // 2) Pull a RECENT window of DB headlines and normalize in-memory
+  // -----------------------------
+  const TAKE_N = 500;
+  let existingRows = await prisma.archive.findMany({
+    where: {
+      organization: ArchiveOrganizationType.NBC_SAN_DIEGO,
+    },
+    orderBy: { publishDate: "desc" },
+    take: TAKE_N,
+    select: { headline: true },
+  });
+
+  if (existingRows.length === 0) {
+    console.warn(
+      `No existing rows found for org=${ArchiveOrganizationType.NBC_SAN_DIEGO}. Falling back to recent global headlines.`
+    );
+    existingRows = await prisma.archive.findMany({
+      orderBy: { publishDate: "desc" },
+      take: TAKE_N,
+      select: { headline: true },
+    });
+  }
+
+  const existingNormSet = new Set(
+    existingRows.map((r) => normalizeHeadline(r.headline ?? "")).filter(Boolean)
+  );
+
+  // -----------------------------
+  // 3) Final: headline-only "new" = not in DB set
+  // -----------------------------
+  const filtered_new_articles = scrapeDeduped.filter((a) => {
+    const key = normalizeHeadline(a.headline ?? "");
+    return key && !existingNormSet.has(key);
+  });
+
+  // If no new articles, notify and return early
+  if (filtered_new_articles.length === 0) {
+    console.info("No new articles found.");
+
+    const subject = "🔔DAN-E-BLAST ALERT: No new articles.";
+    const body = `<p>No new articles were found during the latest NBC San Diego scrape.</p>`;
+    await gmailNotifier.sendNotification(notifierConfig.recipients, subject, body);
+
+    return NextResponse.json({ message: "Scraping complete. No new articles found." });
+  }
+
+  console.log(
+    `Found ${filtered_new_articles.length} new articles. Saving to database...`
+  );
+
   await prisma.archive.createMany({
-    data: filtered_new_articles.map(a => ({
+    data: filtered_new_articles.map((a) => ({
       organization: a.organization,
       contentType: a.contentType,
       publishDate: a.publishDate,
       url: a.articleUrl,
       headline: a.headline,
+      imageUrl: a.imageUrl,
     })),
     skipDuplicates: true,
   });
 
-  // Send notification about new articles
-  const subject = `🔔DAN-E-BLAST ALERT: ${filtered_new_articles.length} new articles found!`
+  // -----------------------------
+  // Email rendering
+  // -----------------------------
+  const subject = `🔔DAN-E-BLAST ALERT: ${filtered_new_articles.length} new articles found!`;
+
   const formatDate = (iso: string): string => {
     const d = new Date(iso);
     if (Number.isNaN(d.getTime())) return iso;
@@ -108,7 +135,7 @@ export async function GET() {
   };
 
   const escapeHtml = (value: string): string =>
-    value
+    (value ?? "")
       .replace(/&/g, "&amp;")
       .replace(/</g, "&lt;")
       .replace(/>/g, "&gt;")
@@ -153,14 +180,6 @@ export async function GET() {
     })
     .join("");
 
-  const emptyState = `
-    <tr>
-      <td style="padding: 18px; border: 1px dashed #d1d5db; border-radius: 12px; background: #fafafa; color: #6b7280; font-size: 14px;">
-        No new stories right now — check back soon.
-      </td>
-    </tr>
-  `;
-
   const html = `
   <!doctype html>
   <html>
@@ -176,7 +195,6 @@ export async function GET() {
             <table role="presentation" width="640" cellspacing="0" cellpadding="0" border="0"
               style="width: 640px; max-width: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
 
-              <!-- Header -->
               <tr>
                 <td style="padding: 0 0 14px 0;">
                   <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0"
@@ -192,8 +210,7 @@ export async function GET() {
                 </td>
               </tr>
 
-              <!-- Content -->
-              ${filtered_new_articles.length ? storyCards : emptyState}
+              ${storyCards}
 
             </table>
           </td>
@@ -203,12 +220,8 @@ export async function GET() {
   </html>
   `.trim();
 
-  await gmailNotifier.sendNotification(
-    notifierConfig.recipients,
-    subject,
-    html
-  );
+  await gmailNotifier.sendNotification(notifierConfig.recipients, subject, html);
   console.log("Notification sent.");
 
-  return NextResponse.json({ message: `Found and saved ${new_articles.length} articles.` })
+  return NextResponse.json({ message: `Found and saved ${filtered_new_articles.length} articles.` });
 }
