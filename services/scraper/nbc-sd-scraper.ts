@@ -18,6 +18,7 @@ export type NBCArticleContent = {
     "headline": string;
     "publishDate": string;
     "articleUrl": string;
+    "imageUrl": string;
 }
 
 /**
@@ -61,12 +62,16 @@ export class NbcSdScraper extends WebScraper {
             const datetimeRaw = $article("time.entry-date.published").first().attr("datetime") ?? "";
             const articlePublishedDate = NbcSdScraper.normalizeText(datetimeRaw);
 
+            // Get image url
+            const imageUrl = NbcSdScraper.extractBestImageUrl($article);
+
             articleContents.push({
                 organization: ArchiveOrganizationType.NBC_SAN_DIEGO,
                 contentType: ArchiveContentType.DIGITAL_ARTICLE,
                 publishDate: articlePublishedDate,
                 articleUrl: articleUrl,
                 headline: articleHeadline,
+                imageUrl: imageUrl
             })
         }
 
@@ -76,5 +81,103 @@ export class NbcSdScraper extends WebScraper {
 
     private static normalizeText(s: string): string {
         return (s ?? "").replace(/\s+/g, " ").trim();
+    }
+
+    /**
+     * Attempts to extract the "best" image URL for an NBC article:
+     * 1) figure.article-featured-media img -> best from srcset, else src
+     * 2) video player case: [data-react-component='VideoPlaylist'][data-props] -> first video poster
+     */
+    private static extractBestImageUrl($article: cheerio.CheerioAPI): string {
+        const $figure = $article("figure.article-featured-media").first();
+        if (!$figure.length) return "";
+
+        // Case 1: standard featured image
+        const $img = $figure.find("img").first();
+        if ($img.length) {
+            const srcset = ($img.attr("srcset") ?? "").trim();
+            const fromSrcset = NbcSdScraper.bestFromSrcset(srcset);
+            const src = ($img.attr("src") ?? "").trim();
+            const chosen = (fromSrcset || src || "").trim();
+            if (chosen) return chosen;
+        }
+
+        // Case 2: video player -> parse props for poster
+        const $vp = $figure
+            .find("[data-react-component='VideoPlaylist']")
+            .first();
+
+        const propsRaw = $vp.attr("data-props");
+        if (propsRaw) {
+            // The HTML attribute is often entity-escaped; cheerio's decodeEntities may help,
+            // but we still normalize common cases explicitly.
+            const unescaped = NbcSdScraper.htmlUnescape(propsRaw);
+
+            try {
+            const props = JSON.parse(unescaped) as any;
+            const videos: any[] = props?.videos ?? [];
+            const first = videos?.[0] ?? {};
+            const poster = (first?.poster ?? "").trim();
+            if (poster) return poster;
+            } catch {
+            // ignore JSON parse failures; return empty below
+            }
+        }
+
+        return "";
+    }
+
+    /**
+     * Given a srcset string, return the URL with the largest width descriptor.
+     * Example: "a.jpg 320w, b.jpg 850w" -> "b.jpg"
+     */
+    private static bestFromSrcset(srcset: string): string | null {
+        if (!srcset) return null;
+
+        let bestUrl: string | null = null;
+        let bestW = -1;
+
+        for (const partRaw of srcset.split(",")) {
+            const part = partRaw.trim();
+            if (!part) continue;
+
+            const tokens = part.split(/\s+/).filter(Boolean);
+            const url = (tokens[0] ?? "").trim();
+            if (!url) continue;
+
+            let w = 0; // if no width descriptor, treat as lowest priority
+
+            if (tokens.length > 1) {
+            const m = tokens[1].match(/(\d+)w$/);
+            if (m?.[1]) w = parseInt(m[1], 10);
+            }
+
+            if (w > bestW) {
+            bestW = w;
+            bestUrl = url;
+            }
+        }
+
+        return bestUrl;
+    }
+
+    /**
+     * Minimal HTML entity unescape for common attribute-escaped JSON.
+     * (Equivalent spirit to Python's html.unescape for this use-case.)
+     */
+    private static htmlUnescape(s: string): string {
+        if (!s) return s;
+
+        // Common entities found in attribute-escaped JSON
+        return s
+            .replace(/&quot;/g, '"')
+            .replace(/&#34;/g, '"')
+            .replace(/&#x22;/g, '"')
+            .replace(/&apos;/g, "'")
+            .replace(/&#39;/g, "'")
+            .replace(/&#x27;/g, "'")
+            .replace(/&amp;/g, "&")
+            .replace(/&lt;/g, "<")
+            .replace(/&gt;/g, ">");
     }
 }
