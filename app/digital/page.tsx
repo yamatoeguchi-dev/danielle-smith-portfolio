@@ -51,7 +51,7 @@ export default async function DigitalPage({}: Props) {
       <div className="flex justify-center my-10">
         <Link
           href="/archive"
-          className="inline-flex items-center rounded-md border border-neutral-300 px-6 py-3 text-sm font-medium
+          className="inline-flex items-center rounded-md border border-neutral-300 px-6 py-3 text-md font-semibold
                      hover:bg-neutral-100 transition-colors"
         >
           View Full Archive

@@ -1,12 +1,8 @@
+'use client'
+
 import React from 'react'
 
-import ArticleCarousel from '@/components/article-carousel'
-import { Separator } from '@/components/ui/separator'
-import { SOCIAL_MEDIA_ARTICLES } from '@/data/articles'
-
-import {Nbc7Social} from './components/nbc7/nbc7'
-import {USCSocial} from './components/usc/usc'
-import { SocialIntro } from './components/intro'
+import { InstagramEmbed } from 'react-social-media-embed'
 
 
 type Props = {}
@@ -14,10 +10,8 @@ type Props = {}
 export default function SocialPage({}: Props) {
 
   return (
-    <div className="mb-8">
-      <SocialIntro />
-      <Nbc7Social />
-      <USCSocial />
+    <div style={{ display: 'flex', justifyContent: 'center' }}>
+      <InstagramEmbed url="https://www.instagram.com/reel/DQRti5_FHk9/?utm_source=ig_web_copy_link" width='328' />
     </div>
   )
 }
