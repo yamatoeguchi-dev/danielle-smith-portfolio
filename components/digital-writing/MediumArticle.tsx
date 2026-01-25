@@ -17,7 +17,7 @@ export default function MediumArticle({
     <Link href={article.url} className="group block" target="blank">
       <article className="rounded-none">
         {article.imageUrl && (
-          <div className="relative mb-3 aspect-[4/3] overflow-hidden">
+          <div className="relative mb-3 aspect-[3/2] overflow-hidden">
             <Image
               src={article.imageUrl}
               alt={article.headline}
@@ -29,7 +29,7 @@ export default function MediumArticle({
         )}
 
         <ArticleMeta date={formatAPDate(article.publishDate)} className="text-muted-foreground mb-1" />
-        <h3 className="mb-2 text-sm font-semibold leading-snug group-hover:underline">
+        <h3 className="mb-2 text-lg font-semibold leading-snug group-hover:underline">
           {article.headline}
         </h3>
       </article>

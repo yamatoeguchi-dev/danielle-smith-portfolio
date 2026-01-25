@@ -22,7 +22,7 @@ export function TextArticleItem({
 
       <Link
         href={article.url}
-        className="block text-sm font-semibold leading-snug hover:underline"
+        className="block text-md font-semibold leading-snug hover:underline"
         target="blank"
       >
         {article.headline}
