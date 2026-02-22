@@ -11,10 +11,10 @@ type Props = {}
 export default async function DigitalPage({}: Props) {
   const FEATURED_ARTICLE_ID = 797;
   const RIGHT_ARTICLES_IDS = [795, 887, 832];
-  const MEDIUM_ARTICLE_IDS = [832, 808];
+  const MEDIUM_ARTICLE_IDS = [915, 808];
   const BOTTOM_RIGHT_ARTICLES_IDS = [1117, 1071, 1090];
 
-  const [
+  let [
     featuredArticle,
     rightArticles,
     mediumArticles,
@@ -34,8 +34,37 @@ export default async function DigitalPage({}: Props) {
     }),
   ]);
 
+  if (featuredArticle?.headline) {
+    featuredArticle.headline = featuredArticle.headline.replace("Recap:", "")
+  }
+
+  if (rightArticles) {
+    for (const article of rightArticles) {
+      if (article.headline) {
+        article.headline = article.headline.replace("Recap:", "").replace("MAP:", "")
+      }
+    }
+  }
+
+  if (mediumArticles) {
+    for (const article of mediumArticles) {
+      if (article.headline) {
+        article.headline = article.headline.replace("Recap:", "").replace("MAP:", "")
+      }
+    }
+  }
+
+  if (bottomRightArticles) {
+    for (const article of bottomRightArticles) {
+      if (article.headline) {
+        article.headline = article.headline.replace("Recap:", "").replace("MAP:", "")
+      }
+    }
+  }
+
+
   return (
-    <div className='editorial-headline'>
+    <div className='editorial-headline py-8'>
       {featuredArticle && (
         <TopFeaturedWithSidebar
           featuredArticle={featuredArticle}
