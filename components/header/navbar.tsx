@@ -16,6 +16,7 @@ type NavbarProps = {
 const NAV_ITEMS = [
   { href: "/digital", label: "Digital Writing" },
   { href: "/hosting", label: "Hosting" },
+  { href: "/producing", label: "Producing" },
 ]
 
 export const Navbar: React.FC<NavbarProps> = ({ variant }) => {
