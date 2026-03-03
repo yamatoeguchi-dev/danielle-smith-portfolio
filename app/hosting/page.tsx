@@ -51,7 +51,7 @@ export default function SocialPage({}: Props) {
           {/* Section Header */}
           <div className="mb-8 border-b border-neutral-300 pb-6">
 
-            <h2 className="mt-3 font-serif text-3xl leading-tight text-neutral-900">
+            <h2 className="mt-3 font-serif text-xl md:text-2xl xl:text-3xl leading-tight text-neutral-900">
               USC Annenberg Media
             </h2>
           </div>
